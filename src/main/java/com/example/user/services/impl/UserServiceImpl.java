@@ -1,0 +1,113 @@
+package com.example.user.services.impl;
+
+import com.example.user.dto.EmailDto;
+import com.example.user.dto.PhoneNumberDto;
+import com.example.user.dto.UserDto;
+import com.example.user.exceptions.InvalidRequestException;
+import com.example.user.exceptions.ResourceNotFoundException;
+import com.example.user.models.Email;
+import com.example.user.models.PhoneNumber;
+import com.example.user.models.User;
+import com.example.user.repository.EmailRepository;
+import com.example.user.repository.PhoneNumberRepository;
+import com.example.user.repository.UserRepository;
+import com.example.user.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ * @author rhea
+ */
+
+@Service
+public class UserServiceImpl implements UserService {
+    //TODO: Add logs
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    EmailRepository emailRepository;
+
+    @Autowired
+    PhoneNumberRepository phoneNumberRepository;
+
+    @Override
+    public UserDto createUser(UserDto userDetails) throws Exception {
+        if(!isValidRequest(userDetails.getEmails(), userDetails.getPhoneNumbers()))
+            throw new InvalidRequestException("Phone numbers or Email ids already exist");
+        User createdUser = userRepository.save(userDetails.toEntity());
+        return createdUser.toDto();
+    }
+
+    @Override
+    public UserDto readUserById(int userId) throws Exception {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isEmpty()) {
+            throw new ResourceNotFoundException("No user found with this id: " + userId);
+        }
+        return optionalUser.get().toDto();
+    }
+
+    @Override
+    public List<UserDto> readUserByName(String name) throws Exception {
+        List<String> fullName = convertName(name);
+        List<User> users = userRepository.findAllByFirstNameAndLastName(fullName.get(0), fullName.get(1));
+        if (users != null) {
+            return users.stream().map(User::toDto).collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    @Override
+    public UserDto updateUserDetails(int userId, List<EmailDto> emails, List<PhoneNumberDto> phoneNumbers) throws Exception {
+        if(!isValidRequest(emails, phoneNumbers))
+            throw new InvalidRequestException("Phone numbers or Email ids already exist");
+        Optional<User> optionalUser = userRepository.findById(userId);
+        UserDto userDto = new UserDto();
+        userDto.setId(userId);
+        userDto.setEmails(emails);
+        userDto.setPhoneNumbers(phoneNumbers);
+        optionalUser.ifPresentOrElse(user -> {
+            user.setEmails(emails.stream().map(EmailDto::toEntity).collect(Collectors.toList()));
+            user.setPhoneNumbers(phoneNumbers.stream().map(PhoneNumberDto::toEntity).collect(Collectors.toList()));
+            userRepository.save(user);
+            userDto.setFirstName(user.getFirstName());
+            userDto.setLastName(user.getLastName());
+        }, () -> { throw new ResourceNotFoundException("No Such User Found with id: " + userId); } );
+        return userDto;
+    }
+
+    @Override
+    public void deleteUser(int userId) throws Exception {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        optionalUser.ifPresentOrElse(user -> {
+            List<Integer> emailIds = user.getEmails().stream().map(Email::getId).collect(Collectors.toList());
+            emailRepository.deleteAllById(emailIds);
+            List<Integer> phoneNumberIds = user.getPhoneNumbers().stream().map(PhoneNumber::getId).collect(Collectors.toList());
+            phoneNumberRepository.deleteAllById(phoneNumberIds);
+            user.setDeleted(1);
+            userRepository.save(user);
+        }, () -> { throw new ResourceNotFoundException("No Such User Found with id: " + userId); } );
+    }
+
+    private Boolean isValidRequest(List<EmailDto> emails, List<PhoneNumberDto> phoneNumbers) {
+        List<Email> mails = emailRepository.findAllByMailIn(emails.stream().map(EmailDto::getMail).collect(Collectors.toList()));
+        List<PhoneNumber> numbers = phoneNumberRepository.findAllByNumberIn(phoneNumbers.stream().map(PhoneNumberDto::getNumber).collect(Collectors.toList()));
+        return numbers.isEmpty() && mails.isEmpty() ;
+    }
+
+    private List<String> convertName(String name) throws Exception {
+        String[] names = name.split("\s");
+        if(names.length == 0 || names.length > 2)
+            throw new InvalidRequestException("Can't have name with 0 or more than 2 words");
+        String firstName = names[0];
+        String lastName = names.length > 1 ? names[1]: "";
+        return List.of(firstName, lastName);
+    }
+}
