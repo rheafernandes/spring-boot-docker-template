@@ -6,10 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
+import java.util.Optional;
 
 @RepositoryRestResource
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    List<User> findAllByFirstNameAndLastName(String firstName, String lastName);
+    Optional<User> findByIdAndDeleted(Integer integer, Integer deleted);
+
+    List<User> findAllByFirstNameAndLastNameAndDeleted(String firstName, String lastName, Integer deleted);
 
 }

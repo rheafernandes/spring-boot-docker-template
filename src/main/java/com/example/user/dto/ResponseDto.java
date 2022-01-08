@@ -15,5 +15,5 @@ public class ResponseDto {
 
     private String errorMessage;
 
-    private List<UserDto> userDto;
+    private List<UserDto> user;
 }

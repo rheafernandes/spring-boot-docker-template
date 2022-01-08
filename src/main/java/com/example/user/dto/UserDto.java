@@ -3,9 +3,7 @@ package com.example.user.dto;
 import com.example.user.models.Email;
 import com.example.user.models.PhoneNumber;
 import com.example.user.models.User;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,6 +12,8 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class UserDto implements Serializable {
     int id;
 
