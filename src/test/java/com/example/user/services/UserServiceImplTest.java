@@ -18,9 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -45,10 +43,10 @@ public class UserServiceImplTest {
 
     @Test
     public void testCreateUser_Success() throws Exception {
-        Mockito.when(emailRepository.findAllByMailIn(Mockito.anyList()))
-                .thenReturn(new ArrayList<>());
-        Mockito.when(phoneNumberRepository.findAllByNumberIn(Mockito.anyList()))
-                .thenReturn(new ArrayList<>());
+        Mockito.when(emailRepository.findAllByMailIn(Mockito.anySet()))
+                .thenReturn(new HashSet<>());
+        Mockito.when(phoneNumberRepository.findAllByNumberIn(Mockito.anySet()))
+                .thenReturn(new HashSet<>());
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                 .thenReturn(getSuccessUserDto().toEntity());
         UserDto savedUser = userServiceImpl.createUser(getSuccessUserDto());
@@ -59,10 +57,10 @@ public class UserServiceImplTest {
 
     @Test
     public void testCreateUser_InvalidRequest() throws Exception {
-        Mockito.when(emailRepository.findAllByMailIn(Mockito.anyList()))
-                .thenReturn(new ArrayList<>());
-        Mockito.when(phoneNumberRepository.findAllByNumberIn(Mockito.anyList()))
-                .thenReturn(List.of(gePhoneNumbersDto(1, "12345").toEntity()));
+        Mockito.when(emailRepository.findAllByMailIn(Mockito.anySet()))
+                .thenReturn(new HashSet<>());
+        Mockito.when(phoneNumberRepository.findAllByNumberIn(Mockito.anySet()))
+                .thenReturn(Set.of(gePhoneNumbersDto(1, "12345").toEntity()));
         assertThrows(InvalidRequestException.class, () -> {
             userServiceImpl.createUser(getSuccessUserDto());
         });
@@ -114,11 +112,11 @@ public class UserServiceImplTest {
     }
 
     public UserDto getSuccessUserDto() {
-        List<EmailDto> emails = List.of(
+        Set<EmailDto> emails = Set.of(
                 getEmailDto(1, "abc@gmail.com"),
                 getEmailDto(2, "xyz@gmail.com")
         );
-        List<PhoneNumberDto> numbers = List.of(
+        Set<PhoneNumberDto> numbers = Set.of(
                 gePhoneNumbersDto(1, "12345"),
                 gePhoneNumbersDto(2, "23456")
         );

@@ -1,5 +1,5 @@
 
-Prerequisites 
+# Prerequisites 
     
     1. Install Intellij / Eclipse IDE
     2. Install Mysql version 8.0 and setup your user
@@ -12,7 +12,7 @@ Prerequisites
 
 Your server should be up and running in http://localhost:8080/user-service
 
-Steps to run if using docker
+# Steps to run if using docker
 
     1. Uncomment the below lines in application.properties 
         #spring.datasource.url=jdbc:mysql://mysql_db:3306/user-service?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false
@@ -21,3 +21,6 @@ Steps to run if using docker
     3. docker compose up
 
 Your server should be up and running in http://localhost:8080/user-service
+
+# API documentation 
+https://documenter.getpostman.com/view/14639616/UVXerczf

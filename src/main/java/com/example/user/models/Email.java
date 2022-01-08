@@ -4,9 +4,7 @@ import com.example.user.dto.EmailDto;
 import com.sun.istack.NotNull;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -22,6 +20,15 @@ public class Email {
 
     @NotNull
     private String mail;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    public Email(int id, String mail) {
+        this.id = id;
+        this.mail = mail;
+    }
 
     public EmailDto toDto() {
         return new EmailDto(this.id, this.mail);

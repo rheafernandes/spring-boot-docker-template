@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,7 +43,10 @@ public class UserServiceImpl implements UserService {
             throw new InvalidRequestException("Can't create empty user details");
         if (userDetails != null && !isValidRequest(userDetails.getEmails(), userDetails.getPhoneNumbers()))
             throw new InvalidRequestException("Phone numbers or Email ids already exist");
-        User createdUser = userRepository.save(userDetails.toEntity());
+        User userToSave = userDetails.toEntity();
+        userToSave.getEmails().forEach(email -> email.setUser(userToSave));
+        userToSave.getPhoneNumbers().forEach(email -> email.setUser(userToSave));
+        User createdUser = userRepository.save(userToSave);
         return createdUser.toDto();
     }
 
@@ -66,7 +70,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUserDetails(int userId, List<EmailDto> emails, List<PhoneNumberDto> phoneNumbers) throws Exception {
+    public UserDto updateUserDetails(int userId, Set<EmailDto> emails, Set<PhoneNumberDto> phoneNumbers) throws Exception {
         if (!isValidRequest(emails, phoneNumbers))
             throw new InvalidRequestException("Phone numbers or Email ids already exist");
         Optional<User> optionalUser = userRepository.findById(userId);
@@ -75,8 +79,12 @@ public class UserServiceImpl implements UserService {
         userDto.setEmails(emails);
         userDto.setPhoneNumbers(phoneNumbers);
         optionalUser.ifPresentOrElse(user -> {
-            user.setEmails(emails.stream().map(EmailDto::toEntity).collect(Collectors.toList()));
-            user.setPhoneNumbers(phoneNumbers.stream().map(PhoneNumberDto::toEntity).collect(Collectors.toList()));
+            Set<Email> emailEntities = emails.stream().map(EmailDto::toEntity).collect(Collectors.toSet());
+            Set<PhoneNumber> phoneNumberEntities = phoneNumbers.stream().map(PhoneNumberDto::toEntity).collect(Collectors.toSet());
+            emailEntities.forEach(email -> email.setUser(user));
+            phoneNumberEntities.forEach(number -> number.setUser(user));
+            user.setEmails(emailEntities);
+            user.setPhoneNumbers(phoneNumberEntities);
             userRepository.save(user);
             userDto.setFirstName(user.getFirstName());
             userDto.setLastName(user.getLastName());
@@ -101,9 +109,9 @@ public class UserServiceImpl implements UserService {
         });
     }
 
-    private Boolean isValidRequest(List<EmailDto> emails, List<PhoneNumberDto> phoneNumbers) {
-        List<Email> mails = emailRepository.findAllByMailIn(emails.stream().map(EmailDto::getMail).collect(Collectors.toList()));
-        List<PhoneNumber> numbers = phoneNumberRepository.findAllByNumberIn(phoneNumbers.stream().map(PhoneNumberDto::getNumber).collect(Collectors.toList()));
+    private Boolean isValidRequest(Set<EmailDto> emails, Set<PhoneNumberDto> phoneNumbers) {
+        Set<Email> mails = emailRepository.findAllByMailIn(emails.stream().map(EmailDto::getMail).collect(Collectors.toSet()));
+        Set<PhoneNumber> numbers = phoneNumberRepository.findAllByNumberIn(phoneNumbers.stream().map(PhoneNumberDto::getNumber).collect(Collectors.toSet()));
         return (numbers == null && mails == null) || (numbers.isEmpty() && mails.isEmpty());
     }
 

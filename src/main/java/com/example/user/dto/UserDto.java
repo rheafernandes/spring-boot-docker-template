@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
@@ -21,13 +22,13 @@ public class UserDto implements Serializable {
 
     String lastName;
 
-    List<EmailDto> emails;
+    Set<EmailDto> emails;
 
-    List<PhoneNumberDto> phoneNumbers;
+    Set<PhoneNumberDto> phoneNumbers;
 
     public User toEntity() {
-        List<Email> emails = this.emails.stream().map(EmailDto::toEntity).collect(Collectors.toList());
-        List<PhoneNumber> phoneNumbers = this.phoneNumbers.stream().map(PhoneNumberDto::toEntity).collect(Collectors.toList());
+        Set<Email> emails = this.emails.stream().map(EmailDto::toEntity).collect(Collectors.toSet());
+        Set<PhoneNumber> phoneNumbers = this.phoneNumbers.stream().map(PhoneNumberDto::toEntity).collect(Collectors.toSet());
         return new User(this.id, this.firstName, this.lastName, emails, phoneNumbers, 0);
     }
 

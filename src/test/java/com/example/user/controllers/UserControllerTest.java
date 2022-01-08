@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import static org.mockito.Mockito.verify;
 
@@ -28,8 +28,8 @@ public class UserControllerTest {
     @BeforeEach
     public void before() {
         userDto = new UserDto();
-        userDto.setEmails(new ArrayList<>());
-        userDto.setPhoneNumbers(new ArrayList<>());
+        userDto.setEmails(new HashSet<>());
+        userDto.setPhoneNumbers(new HashSet<>());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class UserControllerTest {
     @Test
     public void testUpdateUserDetails() throws Exception {
         controller.updateUser(userDto, 2);
-        verify(userService).updateUserDetails(2, new ArrayList<>(), new ArrayList<>());
+        verify(userService).updateUserDetails(2, new HashSet<>(), new HashSet<>());
     }
 
     @Test

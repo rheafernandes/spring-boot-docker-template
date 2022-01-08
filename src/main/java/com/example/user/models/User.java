@@ -4,19 +4,19 @@ import com.example.user.dto.EmailDto;
 import com.example.user.dto.PhoneNumberDto;
 import com.example.user.dto.UserDto;
 import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -33,19 +33,17 @@ public class User {
     @NotNull
     private String lastName;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "id", cascade = CascadeType.ALL)
-    @Fetch(value = FetchMode.SUBSELECT)
-    private List<Email> emails;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Email> emails;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "id", cascade = CascadeType.ALL)
-    @Fetch(value = FetchMode.SUBSELECT)
-    private List<PhoneNumber> phoneNumbers;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<PhoneNumber> phoneNumbers;
 
     private int deleted;
 
     public UserDto toDto() {
-        List<EmailDto> emails = this.emails.stream().map(Email::toDto).collect(Collectors.toList());
-        List<PhoneNumberDto> phoneNumbers = this.phoneNumbers.stream().map(PhoneNumber::toDto).collect(Collectors.toList());
+        Set<EmailDto> emails = this.emails.stream().map(Email::toDto).collect(Collectors.toSet());
+        Set<PhoneNumberDto> phoneNumbers = this.phoneNumbers.stream().map(PhoneNumber::toDto).collect(Collectors.toSet());
         return new UserDto(this.id, this.firstName, this.lastName, emails, phoneNumbers);
     }
 }

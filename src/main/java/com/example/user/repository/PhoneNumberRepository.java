@@ -5,10 +5,10 @@ import com.example.user.models.PhoneNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import java.util.List;
+import java.util.Set;
 
 @RepositoryRestResource
 public interface PhoneNumberRepository extends JpaRepository<PhoneNumber, Integer> {
-    List<PhoneNumber> findAllByNumberIn(List<String> numbers);
+    Set<PhoneNumber> findAllByNumberIn(Set<String> numbers);
 
 }

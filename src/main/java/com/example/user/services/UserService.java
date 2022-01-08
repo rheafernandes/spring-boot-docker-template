@@ -4,6 +4,7 @@ import com.example.user.dto.EmailDto;
 import com.example.user.dto.PhoneNumberDto;
 import com.example.user.dto.UserDto;
 
+import java.util.Set;
 import java.util.List;
 
 public interface UserService {
@@ -14,7 +15,7 @@ public interface UserService {
 
     List<UserDto> readUserByName(String name) throws Exception;
 
-    UserDto updateUserDetails(int userId, List<EmailDto> emails, List<PhoneNumberDto> phoneNumbers) throws Exception;
+    UserDto updateUserDetails(int userId, Set<EmailDto> emails, Set<PhoneNumberDto> phoneNumbers) throws Exception;
 
     void deleteUser(int userId) throws Exception;
 
