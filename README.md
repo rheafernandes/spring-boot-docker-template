@@ -8,7 +8,7 @@
         - spring.datasource.username
         - spring.datasource.password
     4. Run com/example/user/UserServiceApplication.java
-    5. If using docker, install latest docker (Optional)
+    5. If using docker ignore the above steps, install latest docker for your os (Optional)
 
 Your server should be up and running in http://localhost:8080/user-service
 
